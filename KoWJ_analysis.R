@@ -2,6 +2,7 @@ require(dplyr)
 require(ggplot2)
 require(scales)
 require(Rfacebook)
+require(gridExtra)
 
 #使用token的人要記得改一下"token=fb.oauth"這段
 #token="#your facebook API token#"
@@ -52,6 +53,27 @@ dat %>% group_by(type) %>% summarise(平均讚數=mean(likes_count),
 #觀看此粉絲專頁的文章類型數量
 barplot(table(dat$type),main="柯文哲臉書粉絲專頁文章類型",xlab="文章類型",ylab="次數")
 
+
+#觀看指標-按讚、回應、分享數量之關聯
+
+plot1=ggplot(dat,aes(x=log(comments_count+1),y=log(likes_count+1)))+
+geom_point(aes(color=type,shape=type))+labs(title="按讚-回應人數",x="回應人數(log)",y="按讚人數(log)")+
+theme(plot.title = element_text(hjust = 0.5),legend.position=c(.1,.85))
+#geom_smooth(aes(comments_count,likes_count,group=type,color=type), method=lm, se=FALSE)
+
+plot2=ggplot(dat,aes(x=log(shares_count+1),y=log(likes_count+1)))+
+geom_point(aes(color=type,shape=type))+labs(title="按讚-分享人數",x="分享人數(log)",y="按讚人數(log)")+
+theme(plot.title = element_text(hjust = 0.5),legend.position=c(.18,.85))
+
+plot3=ggplot(dat,aes(x=log(comments_count+1),y=log(shares_count+1)))+
+geom_point(aes(color=type,shape=type))+labs(title="回應-分享人數",x="回應人數(log)",y="分享人數(log)")+
+theme(plot.title = element_text(hjust = 0.5),legend.position=c(.1,.85))
+#
+grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)
+
+
+
+
 ##ggplot-文章類型-讚數-時間趨勢
 ggplot(dat,aes(x=as.Date(created_time),y=log(likes_count)))+
 geom_point(aes(color=type,shape=type))+
@@ -59,7 +81,60 @@ geom_vline(aes(xintercept=as.numeric(as.Date("2014-01-19"))),colour="red",linety
 geom_vline(aes(xintercept=as.numeric(as.Date("2014-11-29"))),colour="blue",linetype="dashed")+
 annotate("text",x=as.Date("2014-01-19"),y=4,label="宣布參選",colour="red")+
 annotate("text",x=as.Date("2014-11-29"),y=4,label="當選市長",colour="blue")+
-labs(title="文章類型-讚數-時間趨勢",x="時間",y="讚數_LOG")+
+labs(title="文章類型-讚數-時間趨勢",x="時間",y="讚數(log)")+
 facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
 scale_x_date(labels = date_format("%Y-%m-%d"))
+
+##ggplot-文章類型-回應數-時間趨勢
+####與按讚差異不大###
+ggplot(dat,aes(x=as.Date(created_time),y=log(comments_count)))+
+geom_point(aes(color=type,shape=type))+
+geom_vline(aes(xintercept=as.numeric(as.Date("2014-01-19"))),colour="red",linetype="dashed")+
+geom_vline(aes(xintercept=as.numeric(as.Date("2014-11-29"))),colour="blue",linetype="dashed")+
+annotate("text",x=as.Date("2014-01-19"),y=4,label="宣布參選",colour="red")+
+annotate("text",x=as.Date("2014-11-29"),y=4,label="當選市長",colour="blue")+
+labs(title="文章類型-回應數-時間趨勢",x="時間",y="回應數(log)")+
+facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
+scale_x_date(labels = date_format("%Y-%m-%d"))
+
+
+##ggplot-文章類型-分享數-時間趨勢
+####photo內無明顯回應較低之文章，另event類型皆無分享###
+ggplot(dat,aes(x=as.Date(created_time),y=log(shares_count+1)))+
+geom_point(aes(color=type,shape=type))+
+geom_vline(aes(xintercept=as.numeric(as.Date("2014-01-19"))),colour="red",linetype="dashed")+
+geom_vline(aes(xintercept=as.numeric(as.Date("2014-11-29"))),colour="blue",linetype="dashed")+
+annotate("text",x=as.Date("2014-01-19"),y=4,label="宣布參選",colour="red")+
+annotate("text",x=as.Date("2014-11-29"),y=4,label="當選市長",colour="blue")+
+labs(title="文章類型-分享數-時間趨勢",x="時間",y="分享數+1(log)")+
+facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
+scale_x_date(labels = date_format("%Y-%m-%d"))
+
+
+####
+
+##把按讚數較低的幾則po文拉出來看
+datl=dat %>% filter(log(likes_count)<6.7,type=="photo") %>%
+select(X,message,created_time,type) %>% arrange(as.Date(created_time))
+
+##把其中在2014年的文章(since 1/28 to 7/5)拉出來看，頭尾各增加30篇文章
+dat_2014=dat %>% filter(X<datl$X[1]+30 & X>datl$X[25]-30,type=="photo")
+
+##畫圖觀察可不可以用簡單的方式區辨這些文章
+
+#原本觀察到的圖
+ggplot(dat_2014,aes(y=log(likes_count),x=as.Date(created_time)))+geom_point()+
+geom_hline(aes(yintercept=6.7),colour="red",linetype="dashed")
+
+#用文章字數當作x軸
+ggplot(dat_2014,aes(y=log(likes_count),x=nchar(message)))+geom_point()+
+geom_hline(aes(yintercept=6.7),colour="red",linetype="dashed")
+
+#
+ggplot(dat_2014,aes(y=nchar(message),x=as.Date(created_time)))+
+geom_point(aes(color=log(likes_count)>6.7))+theme(legend.position=c(.3,.85))
+
+
+
+##單以文章字數和文章時間無法區辨出按讚人數低的文章，可能需要做text_mining
 
