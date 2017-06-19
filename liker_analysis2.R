@@ -5,10 +5,8 @@ require(Matrix)
 require(text2vec)
 require(scales)
 
-my_path="C:/Users/tan/Documents"
-
 current_wd=getwd()
-dir=paste0(my_path,"/data/KoWJ")
+dir="F:/data/KoWJ"
 setwd(dir)
 
 like_DT=lapply(list.files(".", full.names = TRUE),function(fn){
@@ -29,11 +27,11 @@ comment_DT=lapply(list.files(".", full.names = TRUE),function(fn){
 }) %>% rbindlist
 
 
-load(paste0(my_path,"/data/like_DT_KoWJ.RData"))
+load("F:/data/like_DT_KoWJ.RData")
 
 ####資料視覺化#####
 #讀取檔案
-dat=read.csv(paste0(my_path,"/data/page_KoWJ.csv"))
+dat=read.csv("F:/data/page_KoWJ.csv")
 
 
 ##資料前處理##
@@ -44,17 +42,12 @@ dat=dat[-which(is.na(dat$message)),]
 #變更變項類型
 dat$message=as.character(dat$message)
 dat$type=as.character(dat$type)
-#變更時間格式
-dat$created_time=parse_date_time(substring(dat$created_time,1, 19),
-"ymd HMS",tz="UTC")
-
 
 #把note類型的po文刪掉-只有一項
 dat=dat[-which(dat$type=="note"),]
 
 #把新增相簿的資料刪除--按讚與回應資料不準確
 dat= dat[-which(grepl("album",dat$story)&grepl("add",dat$story)),]
-
 
 
 ###################### 第一部分 #####################
@@ -97,7 +90,7 @@ plot(c(1:length(tree)),tree)
 ####對按讚者第一次與最後一次按讚的時間作探討
 ####主要方向定義在one-shot liker中  (進出場難以定義)
 
-load(file=paste0(my_path,"/data/liker_fl.RData"))
+load(file="F:/data/liker_fl.RData")
 
 time_first_count=data.frame(table(outDT[outDT$count!=1,]$first))
 time_last_count=data.frame(table(outDT[outDT$count!=1,]$last))
@@ -142,7 +135,7 @@ geom_col(data=. %>% filter(variable=="one_shot"))+facet_grid(type~.)
 
 #facet_grid(type~.)
 
-#以月份作為單位的檔案資料
+#以月份作為單位
 merge_dat_pro=merge_dat%>%mutate(created_time=format(created_time,
 format="%Y-%m"))%>%
 group_by(created_time)%>%summarise(count_l=sum(likes_count),
@@ -187,47 +180,3 @@ annotate("text",x=12,y=800000,label="宣布參選",colour="blue")+
 annotate("text",x=23,y=800000,label="當選市長",colour="darkgreen")+
 scale_alpha_continuous(name="Proportion of\none_shot liker")+
 theme(axis.text.x=element_text(angle=60,hjust=1))
-
-
-###第二部分-2
-#
-#依照type-月份 count one-liker
-
-postDT <- lapply(list.files(".", full.names = TRUE),function(fn){
-  load(fn)
-  data.table(ID=post$post$id,type=post$post$type,
-  post_time = parse_date_time(substring(post$post$created_time,1,19),
-  "ymd HMS"), post$likes)
-}) %>% rbindlist
-
-month_type=postDT %>% mutate(post_month=format(post_time,format="%Y-%m")) %>%
-dcast(post_month+type~1,length,value.var="from_id")
-
-####上面data有 liker number by month/type   接下來要找one-shot liker number 
-
-
-
-
-one_liker=dcast(like_DT,from_id~1,length,value.var="post_date") %>% 
-setnames("1","num") %>% filter(num==1)
-
-post_one_like=like_DT %>% filter(from_id %in% one_liker$from_id) %>%
-dcast(post_ID~1,length,value.var="from_id") %>% setnames("1","one_like_count")
-
-rm(one_liker)
-
-dat_new= merge(dat,post_one_like,by.x="id",by.y="post_ID",all.x=T)
-
-dat_new$one_like_count[is.na(dat_new$one_like_count)]=0
-
-
-dat_new %>% mutate(pro=one_like_count/likes_count) %>%
-ggplot(aes(x=created_time,y=log(likes_count)))+
-geom_point(aes(alpha=pro))+
-facet_grid(type~.)
-
-
-
-merge_dat %>% mutate(pro=one_shot/likes_count) %>%
-ggplot(aes(x=created_time,y=log(likes_count)))+
-geom_point(aes(alpha=pro))+facet_grid(type~.)
