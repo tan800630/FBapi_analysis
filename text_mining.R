@@ -1,42 +1,53 @@
-require(pipeR)
 require(data.table)
 require(dplyr)
+require(Rfacebook)
+require(gridExtra)
+
+#使用token的人要記得改一下"token=fb.oauth"這段
+#token="#your facebook API token#"
+#需要自己抓資料的人可以google  使用R分析Facebook   相關教學
+start_date <- "2013/01/01"
+end_date <- "2017/05/31"
+page.id <- "DoctorKoWJ"
+
+dir="F:"
+
+page <- getPage(page.id,token=fb.oauth,n=3000,since=start_date,until=end_date)
+
+#將資料存出
+write.csv(page,file=paste0(dir,"/data/page_KoWJ.csv"))
+#讀取檔案
+dat=read.csv(paste0(dir,"/data/page_KoWJ.csv"))
+
+#把沒有留言Po文的刪掉
+dat=dat[-which(is.na(dat$message)),]
+
+dat$message=as.character(dat$message)
+
+
+#########1.使用tmcn & Rwordseg套件進行字詞分析#########
+##參考國立高雄大學資管所 陳嘉葳 之文章
+##http://rstudio-pubs-static.s3.amazonaws.com/12422_b2b48bb2da7942acaca5ace45bd8c60c.html
+
 require(tm)
 require(tmcn)
 require(Rwordseg)
 
-current_wd=getwd()
+#製作語料庫
+d.corpus=SimpleCorpus(VectorSource(dat$message),control=list(language = "CN"))
 
-dir="F:/data/KoWJ"
-setwd(dir)
-
-
-postDT <- lapply(list.files(".", full.names = TRUE),function(fn){
-  load(fn)
-  data.table(id=post$post$id,type=post$post$type,likes=post$post$likes_count,
-	comments=post$post$comments_count,shares=post$post$shares_count,
-	message=post$post$message)
-}) %>>% rbindlist
-
-postDT=postDT[-which(is.na(postDT$message)),]
-
-#save(postDT,file="F://data/text_KoWJ.RData")
-load(file="F://data/text_KoWJ.RData")
-
-###########################製作Corpus#####################
-
-##使用tmcn & Rwordseg套件進行字詞分析
-
-d.corpus=SimpleCorpus(VectorSource(postDT$message),
-	control=list(language = "CN"))
-
+#只刪除標點符號
 d.corpus = d.corpus %>% tm_map(removePunctuation)
 
+#文本斷詞
 d.corpus=tm_map(d.corpus, segmentCN, nature = TRUE)
 
-###直接用tm_map做字詞清除將出現
-##Error in UseMethod("removeWords", x) : 
-##  沒有適用的方法可將 'removeWords' 套用到 "list" 類別的物件
+
+#停止詞清除
+
+#直接用tm_map做字詞清除將出現
+#Error in UseMethod("removeWords", x) : 
+#沒有適用的方法可將 'removeWords' 套用到 "list" 類別的物件
 
 #使用lapply處理
 d.corpus = lapply(d.corpus,function(x) removeWords(x,words=stopwordsCN()))
@@ -44,11 +55,10 @@ d.corpus = Corpus(VectorSource(d.corpus))
 
 
 #製作term-document matrix時會出現問題，需要用以下的code
-#source
+#參考網址：
 #http://mylearnho.blogspot.tw/2015/09/chinese-termdocumentmatrix-in-r-tm.html?m=1
 
 #########################################################
-
 library("slam")
 ##  Necessary function basedon "tm"packages.
 ##  Product TermDocumentMatrix for Chinese on R after version 3.0.2
@@ -199,20 +209,89 @@ TermDocumentMatrixCN<-
   }
 ################################################
 
+#可將上面的程式碼存成一個r檔，需要時在source即可
+#source("TermDocumentMatrixCN.r")
+
 #製作Term-Document matrix
 tdm=TermDocumentMatrixCN(d.corpus,control=list(wordLengths = c(2,Inf)))
 
-
 #文字雲
-requrie(wordcloud)
+require(wordcloud)
 
 m1 <- as.matrix(tdm)
 v <- sort(rowSums(m1), decreasing = TRUE)
 d <- data.frame(word = names(v), freq = v)
-wordcloud(d$word, d$freq, min.freq = 10, random.order = F, ordered.colors = F, 
-    colors = rainbow(length(row.names(m1))))
+wordcloud(d$word,d$freq,max.words=200,min.freq=10,random.order=F,
+    ordered.colors=F,colors=rainbow(length(row.names(m1))))
 
 
 #字詞關聯
-findAssocs(tdm,"一起",0.3)
+findAssocs(tdm,"大家",0.3)
+
+
+#########2.使用jiebaR & text2vec套件進行字詞分析#########
+
+Sys.setlocale(category = "LC_ALL", locale = "cht")
+
+require(jiebaR)
+require(text2vec)
+
+
+text_min=worker()
+
+#jiebaR斷詞
+a=sapply(dat$message,function(x) segment(x,text_min))
+a=filter_segment(a,c("的","是","也","在","為","和","有","了"))
+
+#製作詞組字典
+a.token=itoken(a)
+a.vocab=create_vocabulary(a.token,ngram=c(1,1))
+
+a.vocab.ns=a.vocab
+a.vocab.ns$vocab=a.vocab$vocab[-which(nchar(a.vocab$vocab$terms)==1),]
+
+#刪除出現數量過少的字詞
+pruned_vocab=prune_vocabulary(a.vocab.ns,term_count_min=10,
+doc_proportion_max =0.5,doc_proportion_min=0.001)
+
+a.vectorizer=vocab_vectorizer(pruned_vocab,grow_dtm=T,skip_grams_window=5)
+
+
+#term-corpus co-occurrence matrix
+a.tcm=create_tcm(a.token,a.vectorizer)
+
+#document-term co-occurrence matrix
+a.dtm=create_dtm(a.token,a.vectorizer)
+
+#製作glove model
+fit=GlobalVectors$new(word_vectors_size=100,vocabulary=pruned_vocab,x_max=30)
+fit$fit(a.tcm,n_iter=15)
+
+word.vec=fit$get_word_vectors()
+rownames(word.vec)=rownames(a.tcm)
+
+Encoding(rownames(word.vec))="UTF-8"
+
+#View(word.vec)
+
+#對字詞作MDS
+word.mds=cmdscale(1-sim2(t(as.matrix(a.dtm)),method="cosine"))
+plot(word.mds,type="n")
+text(word.mds,labels=rownames(word.vec))
+
+
+
+#######待續###########
+
+#get analogy
+get_analogy=function(king,man,woman){
+	#Hint: establish an analogy logic,vec(queen)=vec(king)~vec(man)+vec(woman)
+	queen=word.vec[king,,drop=F]-word.vec[man,,drop=F]+word.vec[woman,,drop=F]
+
+	#Hint: calculate the cosine-similarity among vec(queen) and other word vectors
+	cos.dist=text2vec:::sim2(x=queen,y=word.vec,method="cosine",norm="l2")
+
+	#please show the top-10 words for this analogy task
+	head(sort(cos.dist[1,],decreasing=T),10)
+}
 

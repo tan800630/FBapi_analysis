@@ -3,6 +3,7 @@ require(ggplot2)
 require(scales)
 require(Rfacebook)
 require(gridExtra)
+require(lubridate)
 
 #使用token的人要記得改一下"token=fb.oauth"這段
 #token="#your facebook API token#"
@@ -12,20 +13,21 @@ start_date <- "2013/01/01"
 end_date <- "2017/05/31"
 page.id <- "DoctorKoWJ"
 
+dir="F:"
+
 page <- getPage(page.id,token=fb.oauth,n=3000,since=start_date,until=end_date)
 
 #看一下資料
 str(page)
 
 #將資料存出
-write.csv(page,file="page_KoWJ.csv")
+write.csv(page,file=paste0(dir,"/data/page_KoWJ.csv"))
 
-#rm(list=ls())
 
 
 ####資料視覺化#####
 #讀取檔案
-dat=read.csv("page_KoWJ.csv")
+dat=read.csv(paste0(dir,"/data/page_KoWJ.csv"))
 
 
 ##資料前處理##
@@ -40,6 +42,8 @@ dat$type=as.character(dat$type)
 #把note類型的po文刪掉-只有一項
 dat=dat[-which(dat$type=="note"),]
 
+dat=dat %>% mutate(created_time = parse_date_time(
+	substring(created_time,1, 19), "ymd HMS"))
 ##資料表##
 
 #table-文章類型/平均按讚次數/數量
@@ -74,46 +78,45 @@ grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)
 
 
 
-##ggplot-文章類型-讚數-時間趨勢
-ggplot(dat,aes(x=as.Date(created_time),y=log(likes_count)))+
+##ggplot-文章類型/讚數-時間趨勢
+ggplot(dat,aes(x=created_time,y=log(likes_count)))+
 geom_point(aes(color=type,shape=type))+
-geom_vline(aes(xintercept=as.numeric(as.Date("2014-01-19"))),colour="red",linetype="dashed")+
-geom_vline(aes(xintercept=as.numeric(as.Date("2014-11-29"))),colour="blue",linetype="dashed")+
-annotate("text",x=as.Date("2014-01-19"),y=4,label="宣布參選",colour="red")+
-annotate("text",x=as.Date("2014-11-29"),y=4,label="當選市長",colour="blue")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",linetype="dashed")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+
+annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+
+annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+
 labs(title="文章類型-讚數-時間趨勢",x="時間",y="讚數(log)")+
 facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
-scale_x_date(labels = date_format("%Y-%m-%d"))
+scale_x_datetime(labels = date_format("%Y-%m-%d"))
 
-##ggplot-文章類型-回應數-時間趨勢
+##ggplot-文章類型/回應數-時間趨勢
 ####與按讚差異不大###
-ggplot(dat,aes(x=as.Date(created_time),y=log(comments_count)))+
+ggplot(dat,aes(x=created_time,y=log(comments_count)))+
 geom_point(aes(color=type,shape=type))+
-geom_vline(aes(xintercept=as.numeric(as.Date("2014-01-19"))),colour="red",linetype="dashed")+
-geom_vline(aes(xintercept=as.numeric(as.Date("2014-11-29"))),colour="blue",linetype="dashed")+
-annotate("text",x=as.Date("2014-01-19"),y=4,label="宣布參選",colour="red")+
-annotate("text",x=as.Date("2014-11-29"),y=4,label="當選市長",colour="blue")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",linetype="dashed")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+
+annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+
+annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+
 labs(title="文章類型-回應數-時間趨勢",x="時間",y="回應數(log)")+
 facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
-scale_x_date(labels = date_format("%Y-%m-%d"))
+scale_x_datetime(labels = date_format("%Y-%m-%d"))
 
 
-##ggplot-文章類型-分享數-時間趨勢
+##ggplot-文章類型/分享數-時間趨勢
 ####photo內無明顯回應較低之文章，另event類型皆無分享###
-ggplot(dat,aes(x=as.Date(created_time),y=log(shares_count+1)))+
+ggplot(dat,aes(x=created_time,y=log(shares_count+1)))+
 geom_point(aes(color=type,shape=type))+
-geom_vline(aes(xintercept=as.numeric(as.Date("2014-01-19"))),colour="red",linetype="dashed")+
-geom_vline(aes(xintercept=as.numeric(as.Date("2014-11-29"))),colour="blue",linetype="dashed")+
-annotate("text",x=as.Date("2014-01-19"),y=4,label="宣布參選",colour="red")+
-annotate("text",x=as.Date("2014-11-29"),y=4,label="當選市長",colour="blue")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",linetype="dashed")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+
+annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+
+annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+
 labs(title="文章類型-分享數-時間趨勢",x="時間",y="分享數+1(log)")+
 facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
-scale_x_date(labels = date_format("%Y-%m-%d"))
+scale_x_datetime(labels = date_format("%Y-%m-%d"))
 
 
 
 ####
-
 ##把按讚數較低的幾則po文拉出來看
 datl=dat %>% filter(log(likes_count)<6.7,type=="photo") %>%
 select(X,message,created_time,type) %>% arrange(as.Date(created_time))
@@ -123,120 +126,44 @@ dat_2014=dat %>% filter(X<datl$X[1]+30 & X>datl$X[25]-30,type=="photo")
 
 ##畫圖觀察可不可以用簡單的方式區辨這些文章
 
-#原本觀察到的圖
+#作圖-按讚數與文章日期
 ggplot(dat_2014,aes(y=log(likes_count),x=as.Date(created_time)))+geom_point()+
-geom_hline(aes(yintercept=6.7),colour="red",linetype="dashed")
+geom_hline(aes(yintercept=6.7),colour="red",linetype="dashed")+
+labs(x="日期",y="按讚數(log)")
 
-#用文章字數當作x軸
+#作圖-按讚數與文章字數
 ggplot(dat_2014,aes(y=log(likes_count),x=nchar(message)))+geom_point()+
-geom_hline(aes(yintercept=6.7),colour="red",linetype="dashed")
+geom_hline(aes(yintercept=6.7),colour="red",linetype="dashed")+
+labs(x="文章字數",y="按讚數(log)")
 
-#
+#作圖-文章字數與日期,以紅色標記按讚數低的點
 ggplot(dat_2014,aes(y=nchar(message),x=as.Date(created_time)))+
-geom_point(aes(color=log(likes_count)>6.7))+theme(legend.position=c(.3,.85))
+geom_point(aes(color=log(likes_count)>6.7))+theme(legend.position=c(.3,.85))+
+labs(x="日期",y="文章字數")
+
+#雖按讚數較低的文章文章字數皆較少，但仍無法用簡單的方式作區隔
+
 
 
 
 ####後續發現是Rfacebook抓取資料時，"創造相簿"的Po文資料抓取會抓到相片而非文章的按讚資料###
+##相關說明參照ptt R_language版
+##https://www.ptt.cc/bbs/R_Language/M.1497333230.A.A9A.html
 
+#從story中找到有 "add __ photo to album: ___" 描述的文章
 dat$album=0
 dat$album[which(grepl("album",dat$story)&grepl("add",dat$story))]=1
 
 
-ggplot(dat,aes(x=as.Date(created_time),y=log(likes_count)))+
+#作圖-文章/讚數-時間趨勢，並以較深的顏色標記是create album的文章
+ggplot(dat,aes(x=created_time,y=log(likes_count)))+
 geom_point(aes(color=type,shape=type,alpha=as.factor(album)))+
-geom_vline(aes(xintercept=as.numeric(as.Date("2014-01-19"))),colour="red",linetype="dashed")+
-geom_vline(aes(xintercept=as.numeric(as.Date("2014-11-29"))),colour="blue",linetype="dashed")+
-annotate("text",x=as.Date("2014-01-19"),y=4,label="宣布參選",colour="red")+
-annotate("text",x=as.Date("2014-11-29"),y=4,label="當選市長",colour="blue")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",linetype="dashed")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+
+annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+
+annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+
 labs(title="文章類型-讚數-時間趨勢-II",x="時間",y="讚數(log)")+
 facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
-scale_x_date(labels = date_format("%Y-%m-%d"))+
+scale_x_datetime(labels = date_format("%Y-%m-%d"))+
 scale_alpha_discrete(range=c(0.3,1))+guides(alpha=FALSE)
 
-
-
-
-
-
-#######text_mining######
-
-##目前並沒有特別的結果
-
-Sys.setlocale(category = "LC_ALL", locale = "cht")
-
-require(jiebaR)
-require(text2vec)
-
-text_min=worker()
-
-a=sapply(dat$message,function(x) segment(x,text_min))
-a=filter_segment(a,c("的","是","也","在","為","和","有","了"))
-
-
-a.token=itoken(a)
-a.vocab=create_vocabulary(a.token,ngram=c(1,1))
-
-a.vocab.ns=a.vocab
-a.vocab.ns$vocab=a.vocab$vocab[-which(nchar(a.vocab$vocab$terms)==1),]
-
-#刪除出現數量過少的字詞
-pruned_vocab=prune_vocabulary(a.vocab.ns,term_count_min=10,
-doc_proportion_max =0.5,doc_proportion_min=0.001)
-
-a.vectorizer=vocab_vectorizer(pruned_vocab,grow_dtm=T,skip_grams_window=5)
-
-
-#term co-occurrence matrix
-a.tcm=create_tcm(a.token,a.vectorizer)
-
-a.dtm=create_dtm(a.token,a.vectorizer)
-
-#製作glove model
-fit=GlobalVectors$new(word_vectors_size=100,vocabulary=pruned_vocab,x_max=30)
-fit$fit(a.tcm,n_iter=15)
-
-word.vec=fit$get_word_vectors()
-rownames(word.vec)=rownames(a.tcm)
-
-Encoding(rownames(word.vec))="UTF-8"
-
-#View(word.vec)
-
-
-a.dtm@Dimnames[[1]]=as.character(c(1:length(a.dtm@Dimnames[[1]])))
-#對文章做MDS，不好呈現
-a.dist=1-sim2(as.matrix(a.dtm),method="cosine")
-a.mds=cmdscale(a.dist)
-plot(a.mds,type="n")
-text(a.mds,labels=c(1:dim(a.mds)[1]))
-
-#對文章做hierarchical clustering，狀況超差
-a.hclu=hclust(as.dist(a.dist))
-plot(a.hclu)
-
-#對字詞作MDS
-word.mds=cmdscale(1-sim2(t(as.matrix(a.dtm)),method="cosine"))
-plot(word.mds,type="n")
-text(word.mds,labels=rownames(word.vec))
-
-
-#get analogy
-get_analogy=function(king,man,woman){
-	#Hint: establish an analogy logic,vec(queen)=vec(king)~vec(man)+vec(woman)
-	queen=word.vec[king,,drop=F]-word.vec[man,,drop=F]+word.vec[woman,,drop=F]
-
-	#Hint: calculate the cosine-similarity among vec(queen) and other word vectors
-	cos.dist=text2vec:::sim2(x=queen,y=word.vec,method="cosine",norm="l2")
-
-	#please show the top-10 words for this analogy task
-	head(sort(cos.dist[1,],decreasing=T),10)
-}
-
-
-
-
-####後續
-##加入回應資訊-->
-# 1. 以按讚的人分類文章
-# 2. 以按讚的文章分類人
