@@ -15,7 +15,7 @@ ex.若在擷取資料上有遇到困難無法處理或暫時不考慮申請FBAPI
 
 -------------------------------------------------
 -------------------------------------------------
-## 分析開始  ## 
+## 開始  ## 
 #載入需要的套件  
 
 ```r
@@ -38,7 +38,7 @@ dir="F:"
 ```
 
 #讀取資料-存檔  
-注意!
+**注意!**  
 使用token的人要記得改一下"token=fb.oauth"這段  
 token="your facebook API token"
 
@@ -69,6 +69,7 @@ str(dat)
 >$ comments_count: int  217 95 306 125 178 125 292 271 541 571 ...  
 >$ shares_count  : int  122 55 599 50 132 165 0 2958 931 1801 ...  
 
+
 可以看到資料中紀錄了2013年到2017年5月之間的文章(共_1145_篇)  
 每一篇文章之資料包含  
  - 文章ID  
@@ -78,8 +79,8 @@ str(dat)
  - 按讚人數  
  - 回應人數  
  - 分享人數   
-  
-然而部分的變項類型與資料需要先做處理
+
+## 資料處理 ##
 
 ```r
 #把沒有留言Po文的刪掉  
@@ -89,19 +90,64 @@ dat=dat[-which(is.na(dat$message)),]
 dat$message=as.character(dat$message)  
 dat=dat %>% mutate(created_time = parse_date_time(
 	substring(created_time,1, 19), "ymd HMS"))  
-  
-#把note類型的po文刪掉-只有一項  
-dat=dat[-which(dat$type=="note"),]  
-  
-
 ```
 
-#分析
 整理完資料後，就可以來分析了。  
-首先我們有興趣的是在此專頁中究竟何種類型的文章較多  
+
+## 指標之間的關聯 ##  
+問題：
+
+1. 在專頁中何種類型的文章較多？  
+2. 我們可以預期按讚的人數多，回應與分享的人數就多嗎？_(看按讚-回應-分享之間的關聯)_  
 
 ```r
 #觀看此粉絲專頁的文章類型數量
 barplot(table(dat$type),main="柯文哲臉書粉絲專頁文章類型",xlab="文章類型",ylab="次數")
 ```
 
+**barplot**  
+  
+從圖中我們可以發現**Photo**類型的文章最多，接著是**Video**、**Link**、**Status**、**Event**次數依序降低，符合了「發文不附圖，此風不可長」與「沒圖沒真相」的現代趨勢。    
+另外Note類型的文章非常少，在資料中只有一則，後續將其從資料中刪除。  
+
+```r
+#把note類型的po文刪掉-只有一篇     
+dat=dat[-which(dat$type=="note"),]  
+```
+  
+   
+```r
+#觀看指標-按讚、回應、分享數量之關聯  
+#由於三類指標的分配皆為
+  
+plot1=ggplot(dat,aes(x=log(comments_count+1),y=log(likes_count+1)))+  
+geom_point(aes(color=type,shape=type))+labs(title="按讚-回應人數",x="回應人數(log)",y="按讚人數(log)")+  
+theme(plot.title = element_text(hjust = 0.5),legend.position=c(.1,.85))  
+  
+plot2=ggplot(dat,aes(x=log(shares_count+1),y=log(likes_count+1)))+  
+geom_point(aes(color=type,shape=type))+labs(title="按讚-分享人數",x="分享人數(log)",y="按讚人數(log)")+  
+theme(plot.title = element_text(hjust = 0.5),legend.position=c(.18,.85))  
+  
+plot3=ggplot(dat,aes(x=log(comments_count+1),y=log(shares_count+1)))+  
+geom_point(aes(color=type,shape=type))+labs(title="回應-分享人數",x="回應人數(log)",y="分享人數(log)")+  
+theme(plot.title = element_text(hjust = 0.5),legend.position=c(.1,.85))  
+  
+grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)  
+```
+
+**ggplot_like_respond_share_xyplot**  
+  
+上圖呈現按讚-回應-分享人數兩兩配對的x-y plot，另外也以不同顏色和形狀表示不同的文章類型，可以看到按讚與回應的人數有非常高的線性正相關，另外分享與其他兩個指標也有正向的關聯，然而三張圖左下角都有一小群的離群值，在此先留意一下。  
+
+　  
+
+## 時間趨勢 ##
+
+另外，我們當然也有興趣了解柯文哲的人氣狀況_(按讚/回應/分享人次都是能夠反映人氣的指標，由於按讚-回應-分享彼此之間有不錯的正相關，這邊即只取按讚人數作為反映人氣的指標)_  
+然而除了直接計算粉絲專頁文章的平均按讚人數，我們更有興趣的是，**柯文哲的人氣是否隨著時間有明顯的上升/下降趨勢**  
+
+相關新聞：[TVBS：民調／市政爭議不斷！柯P滿意度僅剩36%](http://news.tvbs.com.tw/politics/671861)   
+相關連結：[台北市長柯文哲滿意度追蹤](http://tsjh301.blogspot.tw/2016/07/2016-taipei-mayor-satisfaction.html)  
+(以上相關網站不代表個人立場，純粹想提供大家相關的資訊，以及為何會以這個角度切入分析資料)  
+
+注意!!
