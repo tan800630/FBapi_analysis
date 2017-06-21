@@ -92,6 +92,28 @@ dat=dat %>% mutate(created_time = parse_date_time(
 	substring(created_time,1, 19), "ymd HMS"))  
 ```
 
+另外，我們可以先看一下按讚、回應、分享三個變項的分配圖形   
+```r
+par(mfrow=c(1,3))  
+hist(dat$likes_count,main="按讚人數分配",xlab="按讚人數")   
+hist(dat$comments_count,main="回應人數分配",xlab="回應人數")  
+hist(dat$shares_count,main="分享人數分配",xlab="分享人數")  
+```
+
+![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/hist_distribution.png)
+**hist1**  
+
+看起來不是非常開心(也可能是我太執著於常態分配)   
+取log轉換後的資料分配如下圖，可愛多了   
+
+![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/hist_dist_log.png)
+**hist2**  
+
+後續的資料呈現由於不希望數值都擠在一起，因此將採用log轉換數值，並在座標軸上特別做出標記，請各位特別注意。   
+
+
+
+
 整理完資料後，就可以來分析了。  
 
 ## 指標之間的關聯 ##  
@@ -104,7 +126,7 @@ dat=dat %>% mutate(created_time = parse_date_time(
 #觀看此粉絲專頁的文章類型數量
 barplot(table(dat$type),main="柯文哲臉書粉絲專頁文章類型",xlab="文章類型",ylab="次數")
 ```
-![](http://FBapi_analysis/pic/bar_plot.png)
+![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/bar_plot.png)
 **barplot**  
   
 從圖中我們可以發現**Photo**類型的文章最多，接著是**Video**、**Link**、**Status**、**Event**次數依序降低，符合了「發文不附圖，此風不可長」與「沒圖沒真相」的現代趨勢。    
@@ -135,10 +157,10 @@ theme(plot.title = element_text(hjust = 0.5),legend.position=c(.1,.85))
 grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)  
 ```
 
-![](http://FBapi_analysis/pic/ggplot_like_comment_share_xyplot.png)
+![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_comment_share_xyplot.png)
 **ggplot_like_respond_share_xyplot**  
   
-上圖呈現按讚-回應-分享人數兩兩配對的x-y plot，另外也以不同顏色和形狀表示不同的文章類型，可以看到按讚與回應的人數有非常高的線性正相關，另外分享與其他兩個指標也有正向的關聯，然而三張圖左下角都有一小群的離群值，在此先留意一下。  
+上圖呈現按讚-回應-分享人數(log)兩兩配對的x-y plot，另外也以不同顏色和形狀表示不同的文章類型，可以看到按讚與回應的人數有非常高的線性正相關，另外分享與其他兩個指標也有正向的關聯，然而三張圖左下角都有一小群的離群值，在此先留意一下。  
 
 　  
 
@@ -151,4 +173,24 @@ grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)
 相關連結：[台北市長柯文哲滿意度追蹤](http://tsjh301.blogspot.tw/2016/07/2016-taipei-mayor-satisfaction.html)  
 (以上相關網站不代表個人立場，純粹想提供大家相關的資訊，以及為何會以這個角度切入分析資料)  
 
-注意!!
+
+> 特別注意!! 此分析以粉絲專頁中的資料進行分析，與民調之資料來源(特定社群網頁v.s.電話抽樣)以及指標(按讚人數v.s.明確詢問"滿意度")皆有差異，在推論時要特別注意，盡量避免偏誤。   
+
+```r
+##ggplot-文章類型/讚數-時間趨勢   
+ggplot(dat,aes(x=created_time,y=log(likes_count)))+   
+geom_point(aes(color=type,shape=type))+   
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",linetype="dashed")+   
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+   
+annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+   
+annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+   
+labs(title="文章類型-讚數-時間趨勢",x="時間",y="讚數(log)")+   
+facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+   
+scale_x_datetime(labels = date_format("%Y-%m-%d"))   
+```
+
+**ggplot_like_type_trend**  
+
+上圖將不同類型的文章分開，並且畫出2013年到今年5月份每一篇文的發文時間點與按讚人數(log)
+
+###待續####

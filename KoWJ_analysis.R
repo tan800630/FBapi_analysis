@@ -15,13 +15,13 @@ page.id <- "DoctorKoWJ"
 
 dir="F:"
 
-page <- getPage(page.id,token=fb.oauth,n=3000,since=start_date,until=end_date)
+dat <- getPage(page.id,token=fb.oauth,n=3000,since=start_date,until=end_date)
 
 #戈
-str(page)
+str(dat)
 
 #盢戈
-write.csv(page,file=paste0(dir,"/data/page_KoWJ.csv"))
+write.csv(dat,file=paste0(dir,"/data/page_KoWJ.csv"))
 
 
 
@@ -37,19 +37,24 @@ dat=dat[-which(is.na(dat$message)),]
 
 #跑跑兜摸
 dat$message=as.character(dat$message)
-dat$type=as.character(dat$type)
+#dat$type=as.character(dat$type)
 
 #рnote摸poゅ奔-Τ兜
 dat=dat[-which(dat$type=="note"),]
 
 dat=dat %>% mutate(created_time = parse_date_time(
 	substring(created_time,1, 19), "ymd HMS"))
-##戈##
 
-#table-ゅ彻摸/キА苂Ω计/计秖
-dat %>% group_by(type) %>% summarise(キА苂计=mean(likes_count),
-キА痙ē计=mean(comments_count),キАだㄉ=mean(shares_count),
-ず甧=mean(nchar(message)),计秖=length(likes_count))
+par(mfrow=c(1,3))
+hist(dat$likes_count,main="苂计だ皌",xlab="苂计")
+hist(dat$comments_count,main="莱计だ皌",xlab="莱计")
+hist(dat$shares_count,main="だㄉ计だ皌",xlab="だㄉ计")
+
+par(mfrow=c(1,3))
+hist(log(dat$likes_count),main="苂计だ皌",xlab="苂计(log)")
+hist(log(dat$comments_count),main="莱计だ皌",xlab="莱计(log)")
+hist(log(dat$shares_count),main="だㄉ计だ皌",xlab="だㄉ计(log)")
+
 
 
 ##戈瓜##
