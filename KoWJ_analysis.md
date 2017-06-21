@@ -1,10 +1,10 @@
-#柯文哲粉絲專頁分析
+# 柯文哲粉絲專頁分析 #
 #
 
-##目標
+## 目標 ##
 使用R軟體擷取柯文哲Facebook粉絲專頁相關資料，並呈現相關的視覺化圖表。
 
-##事前準備
+## 事前準備 ##
 1. 取得Facebook API Account與tokens (可參照此[教學部落格](https://blog.gtwang.org/r/facebook-social-media-mining-with-r/))
  
 2. **Required R packages**：
@@ -15,8 +15,8 @@ ex.若在擷取資料上有遇到困難無法處理或暫時不考慮申請FBAPI
 
 -------------------------------------------------
 -------------------------------------------------
-##分析開始
-###載入需要的套件
+## 分析開始  ## 
+#載入需要的套件  
 
 ```r
 require(dplyr)
@@ -27,7 +27,7 @@ require(gridExtra)
 require(lubridate)
 ```
 
-###定義參數
+#定義參數  
 
 ```r
 start_date <- "2013/01/01"
@@ -37,10 +37,10 @@ page.id <- "DoctorKoWJ"
 dir="F:"
 ```
 
-###讀取資料-存檔
+#讀取資料-存檔  
 注意!
-使用token的人要記得改一下"token=fb.oauth"這段
-token="<font color="blue">your facebook API token*<font>"
+使用token的人要記得改一下"token=fb.oauth"這段  
+token="your facebook API token"
 
 ```r
 page <- getPage(page.id, token=fb.oauth, n=3000, since=start_date, until=end_date)
@@ -51,7 +51,7 @@ write.csv(page,file=paste0(dir,"/data/page_KoWJ.csv"))
 dat=read.csv(paste0(dir,"/data/page_KoWJ.csv"))
 ```
 
-看一下取得的資料欄位有哪一些
+看一下取得的資料欄位有哪一些  
 ```r
 str(dat)
 ```
@@ -78,6 +78,8 @@ str(dat)
  - 按讚人數  
  - 回應人數  
  - 分享人數   
+  
+然而部分的變項類型與資料需要先做處理
 
 ```r
 #把沒有留言Po文的刪掉  
@@ -85,11 +87,21 @@ dat=dat[-which(is.na(dat$message)),]
 
 #變更變項類型  
 dat$message=as.character(dat$message)  
-dat$type=as.character(dat$type)  
+dat=dat %>% mutate(created_time = parse_date_time(
+	substring(created_time,1, 19), "ymd HMS"))  
   
 #把note類型的po文刪掉-只有一項  
 dat=dat[-which(dat$type=="note"),]  
   
-dat=dat %>% mutate(created_time = parse_date_time(
-	substring(created_time,1, 19), "ymd HMS"))  
+
 ```
+
+#分析
+整理完資料後，就可以來分析了。  
+首先我們有興趣的是在此專頁中究竟何種類型的文章較多  
+
+```r
+#觀看此粉絲專頁的文章類型數量
+barplot(table(dat$type),main="柯文哲臉書粉絲專頁文章類型",xlab="文章類型",ylab="次數")
+```
+
