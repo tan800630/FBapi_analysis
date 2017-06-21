@@ -104,7 +104,7 @@ dat=dat %>% mutate(created_time = parse_date_time(
 #觀看此粉絲專頁的文章類型數量
 barplot(table(dat$type),main="柯文哲臉書粉絲專頁文章類型",xlab="文章類型",ylab="次數")
 ```
-
+![](http://FBapi_analysis/pic/bar_plot.png)
 **barplot**  
   
 從圖中我們可以發現**Photo**類型的文章最多，接著是**Video**、**Link**、**Status**、**Event**次數依序降低，符合了「發文不附圖，此風不可長」與「沒圖沒真相」的現代趨勢。    
@@ -135,6 +135,7 @@ theme(plot.title = element_text(hjust = 0.5),legend.position=c(.1,.85))
 grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)  
 ```
 
+![](http://FBapi_analysis/pic/ggplot_like_comment_share_xyplot.png)
 **ggplot_like_respond_share_xyplot**  
   
 上圖呈現按讚-回應-分享人數兩兩配對的x-y plot，另外也以不同顏色和形狀表示不同的文章類型，可以看到按讚與回應的人數有非常高的線性正相關，另外分享與其他兩個指標也有正向的關聯，然而三張圖左下角都有一小群的離群值，在此先留意一下。  
