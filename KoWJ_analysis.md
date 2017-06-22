@@ -306,4 +306,9 @@ scale_alpha_discrete(range=c(0.3,1))+guides(alpha=FALSE)
 
 ## 小結 ##
 
-這部分的分析目前到此告一段落，以Rfacebook擷取的頁面資料除了上述的整理作圖以外，另一個賣點就是文字探勘的部分，很可惜地我對這個部分並不熟悉，只能以網路上的資源依樣畫葫蘆去呈現，下一篇即試著以柯文哲粉絲專頁的文章內容進行簡單的文字探勘。
+這部分的分析目前到此告一段落，以Rfacebook擷取的頁面資料除了上述的整理作圖以外，另一個賣點就是文字探勘的部分，因此後續將試著以柯文哲粉絲專頁的文章內容進行簡單的文字探勘。但本人對文字探勘研究不深，因此主要以網路上的資源依樣畫葫蘆做呈現。  
+
+若對此篇文章有任何建議或回饋，非常大家以任何方式留言給我進行交流
+E-mail: tan800630@gmail.com
+  
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/tw/"><img alt="創用 CC 授權條款" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/3.0/tw/88x31.png" /></a><br />本著作由<a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/tan800630" property="cc:attributionName" rel="cc:attributionURL">Yueh-Lin Tsai</a>製作，以<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/tw/">創用CC 姓名標示-非商業性-相同方式分享 3.0 台灣 授權條款</a>釋出。
