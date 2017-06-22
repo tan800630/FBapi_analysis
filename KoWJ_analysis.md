@@ -38,9 +38,9 @@ dir="F:"
 ```
 
 #讀取資料-存檔  
+
 **注意!**  
-使用token的人要記得改一下"token=fb.oauth"這段  
-token="your facebook API token"
+使用token的人要記得改一下"token=fb.oauth"這段 **token="your facebook API token"**
 
 ```r
 page <- getPage(page.id, token=fb.oauth, n=3000, since=start_date, until=end_date)
@@ -79,6 +79,7 @@ str(dat)
  - 按讚人數  
  - 回應人數  
  - 分享人數   
+-------------------------------------------------  
 
 ## 資料處理 ##
 
@@ -111,13 +112,12 @@ hist(dat$shares_count,main="分享人數分配",xlab="分享人數")
 **hist2**  
 
 後續的資料呈現由於不希望數值都擠在一起，因此將採用log轉換數值，並在座標軸上特別做出標記，請各位特別注意。   
-
-
+整理完資料後，就可以來分析了。  
+  
+-------------------------------------------------  
 
 ## 分析 ##  
-整理完資料後，就可以來分析了。  
-
-## 指標之間的關聯 ##  
+  
 問題：
 
 1. 在專頁中何種類型的文章較多？  
