@@ -178,8 +178,9 @@ geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",lin
 geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+
 annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+
 annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+
-labs(title="文章類型-讚數-時間趨勢-II",x="時間",y="讚數(log)")+
+labs(title="文章類型-讚數-時間趨勢-III",x="時間",y="讚數(log)")+
 facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
 scale_x_datetime(labels = date_format("%Y-%m-%d"))+
-scale_alpha_discrete(range=c(0.3,1))+guides(alpha=FALSE)
+scale_alpha_discrete(range=c(0.1,1))+guides(alpha=FALSE)
+
 
