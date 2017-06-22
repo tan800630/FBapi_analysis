@@ -102,14 +102,14 @@ hist(dat$shares_count,main="分享人數分配",xlab="分享人數")
 ```
 
 ![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/hist_distribution.png)
-**hist1**  
+**圖一**  
 
 看起來不是非常開心，若後續想要對這些變項作圖的話多數狀況下會因為極端值拉大座標軸的最大值而不好做判斷   
   
 取log轉換後的資料分配如下圖，可愛多了   
 
 ![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/hist_dist_log.png)
-**hist2**  
+**圖二**  
 
 後續的資料呈現由於不希望數值都擠在一起，因此將採用log轉換數值，並在座標軸上特別做出標記，請各位特別注意。   
 整理完資料後，就可以來分析了。  
@@ -128,7 +128,7 @@ hist(dat$shares_count,main="分享人數分配",xlab="分享人數")
 barplot(table(dat$type),main="柯文哲臉書粉絲專頁文章類型",xlab="文章類型",ylab="次數")
 ```
 ![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/bar_plot.png)
-**barplot**  
+**圖三**  
   
 從圖中我們可以發現**Photo**類型的文章最多，接著是**Video**、**Link**、**Status**、**Event**次數依序降低，符合了「發文不附圖，此風不可長」與「沒圖沒真相」的現代趨勢。    
 另外也看到Note類型的文章非常少，在資料中只有一則，後續將其從資料中刪除。  
@@ -159,7 +159,7 @@ grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)
 ```
 
 ![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_comment_share_xyplot.png)
-**ggplot_like_respond_share_xyplot**  
+**圖四**  
   
 上圖呈現按讚-回應-分享人數(log)兩兩配對的x-y plot，另外也以不同顏色和形狀表示不同的文章類型，可以看到按讚與回應的人數有非常高的線性正相關，另外分享與其他兩個指標也有正向的關聯，然而三張圖左下角都有一小群的離群值，在此先留意一下。  
 
@@ -194,10 +194,12 @@ scale_x_datetime(labels = date_format("%Y-%m-%d"))
 
 **ggplot_like_type_trend**  
 
-上圖將不同類型的文章分成不同的圖，並且畫出2013年到今年5月份每一篇文的發文時間點與按讚人數(log)之間的關係，另外我也將兩個比較特殊的時間點在圖上標記出來_(年-月-日)_，以供參考。  
+上圖將不同類型的文章分成不同的圖，並且畫出2013年到今年5月份每一篇文的發文時間點與按讚人數(log)之間的關係，另外我也將兩個比較特殊的時間點在圖上標記出來*(年-月-日)*，以供參考。  
   
 從資料中我們可以看到Po文按讚人數隨著時間的變化，整體而言*Photo*類型的貼文分布於各個時間點當中，專頁開始較活躍地持續貼出文章的確就是在2014年柯宣布參選的時間點附近。而在2014下半年度市長選舉衝刺期時，除了原本的*Photo*外，此粉絲專頁大量使用了*video*與部分*link*類型文章，這段時間按讚數爬升的趨勢非常明顯，反映了當時柯在網路上的人氣持續拉高，直接或間接地奠定了順利當選的結果。  
+
 2015年底至2016年初則有另一個按讚人數的高峰**(可能可以代表網路人氣，也可能不行)**，且是目前為止的最高點，除了本身人氣之外，這個時間點亦恰好為跨年(柯登台表演!?)、柯P一日北高雙城、以及總統大選前的黃金時刻，因此受到關注的程度非常高。  
+
 後續文章按讚人數在趨勢上雖有下降的感覺，但未像參選時有短時間一定幅度的急遽變化，這是否反映了柯P人氣下滑？還是純屬正常的沉澱現象呢？由於目前並未有其他資料比對，在此不做特別的推論，我們只能靜靜地看下去。  
   
 
@@ -219,7 +221,7 @@ scale_x_datetime(labels = date_format("%Y-%m-%d"))
 
 **ggplot_photo_trend**  
 
-在2014上半年與2015下半年分別有兩群較明顯的低讚數文章，這些文章特別的地方在哪裡(*是不是說了甚麼不該說的話*)，為什麼會那麼少人按讚呢？  
+在2014上半年與2015下半年分別有兩群較明顯的低讚數文章(還記得圖四的離群值嗎)，這些文章特別的地方在哪裡(*是不是說了甚麼不該說的話*)，為什麼會那麼少人按讚呢？  
 以下我將花一點時間去探索這個問題。  
   
 
@@ -248,3 +250,52 @@ geom_point(aes(color=log(likes_count)>7))+theme(legend.position=c(.3,.85))+
 labs(x="日期",y="文章字數")
 ```
 
+**nchar_like_xyplot**
+**nchar_date_xyplot**
+  
+雖然按讚數較低的文章們在字數上真的都比較少，然而沒辦法純粹使用文章字數就可以做區辨(或是預測)，肯定仍然有甚麼特殊之處。  
+然而除非我們進行文字探勘，否則大致上已經沒有更多資訊可以讓我們做判斷了。  
+  
+因此，我們只能用目前最高端的智能工具，也就是我們自己，來處理這件事情。  
+後續直接觀察了文章內文，結果發現的確都有相同之處，這些文章都是創建相簿的動態，而創建相簿的訊息將標記在註記中。  
+  
+下圖將創建相簿的文章以較深的顏色標記。  
+
+```r
+####後續發現是Rfacebook抓取資料時，"創造相簿"的Po文資料抓取會抓到相片而非文章的按讚資料###
+##相關說明參照ptt R_language版
+##https://www.ptt.cc/bbs/R_Language/M.1497333230.A.A9A.html
+
+#從story中找到有 "add *** photo to album: ***" 描述的文章
+dat$album=0
+dat$album[which(grepl("album",dat$story)&grepl("add",dat$story))]=1
+
+
+#作圖-文章/讚數-時間趨勢，並以較深的顏色標記是create album的文章
+ggplot(dat,aes(x=created_time,y=log(likes_count)))+
+geom_point(aes(color=type,shape=type,alpha=as.factor(album)))+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",linetype="dashed")+
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+
+annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+
+annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+
+labs(title="文章類型-讚數-時間趨勢-II",x="時間",y="讚數(log)")+
+facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
+scale_x_datetime(labels = date_format("%Y-%m-%d"))+
+scale_alpha_discrete(range=c(0.3,1))+guides(alpha=FALSE)
+```
+
+**type_like_trend3**  
+  
+>後續發現是Rfacebook套件抓取資料時，在"創造相簿"的文章中會抓到第一張相片而非文章的按讚資料  
+*相關說明參照ptt R_language版 https://www.ptt.cc/bbs/R_Language/M.1497333230.A.A9A.html*  
+
+大部分狀況下會低估文章的按讚人數(以及回應人數)，從圖中可以看到之前提到的幾則按讚人數較低的文章都屬於這一類，之後進行其他分析時也須特別注意這類文章並將其作處理以免造成誤差。  
+
+>很可惜地我們這次看到的狀況並非是有意義的訊息，而是套件使用上的一些誤差。雖這不能提供我們了解更多柯文哲粉絲專頁的訊息，但至少可以使Rfacebook的使用者甚至是開發者注意到這個狀況(?)
+
+----------  
+
+
+## 小結 ##
+
+這部分的分析目前到此告一段落，以Rfacebook擷取的頁面資料除了上述的整理作圖以外，另一個賣點就是文字探勘的部分，很可惜地我對這個部分並不熟悉，只能以網路上的資源依樣畫葫蘆去呈現，下一篇即試著以柯文哲粉絲專頁的文章內容進行簡單的文字探勘。
