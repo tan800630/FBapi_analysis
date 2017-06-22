@@ -8,10 +8,10 @@
 1. 取得Facebook API Account與tokens (可參照此[教學部落格](https://blog.gtwang.org/r/facebook-social-media-mining-with-r/))
  
 2. **Required R packages**：
-*Rfacebook, dplyr, lubridate, ggplot2, scales, gridExtra*
+*Rfacebook, dplyr, lubridate, ggplot2, scales, gridExtra*  
 
-ex.若在擷取資料上有遇到困難無法處理或暫時不考慮申請FBAPI帳號的，可直接點選下面連結到data資料夾中下載檔案  
 
+ex.若在擷取資料上有遇到困難無法處理或暫時不考慮申請FBAPI帳號的，可直接點選下面連結到data資料夾中下載檔案
 [資料夾連結點我](https://github.com/tan800630/FBapi_analysis/blob/master/data)
 
 -------------------------------------------------
@@ -160,6 +160,7 @@ grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)
 ```
 
 ![圖四](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_comment_share_xyplot.png)
+*請放大服用*  
 
   
 上圖呈現按讚-回應-分享人數(log)兩兩配對的x-y plot，另外也以不同顏色和形狀表示不同的文章類型，可以看到按讚與回應的人數有非常高的線性正相關，另外分享與其他兩個指標也有正向的關聯，然而三張圖左下角都有一小群的離群值，在此先留意一下。  
@@ -173,6 +174,7 @@ grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)
 
 相關新聞(2016/09/01)：[TVBS：民調／市政爭議不斷！柯P滿意度僅剩36%](http://news.tvbs.com.tw/politics/671861)   
 相關連結：[台北市長柯文哲滿意度追蹤](http://tsjh301.blogspot.tw/2016/07/2016-taipei-mayor-satisfaction.html)  
+
 (以上相關網站不代表個人立場，純粹想提供大家相關的資訊，以及為何會以這個角度切入分析資料)  
   
   
@@ -193,7 +195,8 @@ scale_x_datetime(labels = date_format("%Y-%m-%d"))
 ```
 
 ![圖五](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_type_trend.png)
-  
+*請放大服用*  
+
 
 上圖將不同類型的文章分成不同的圖，並且畫出2013年到今年5月份每一篇文的發文時間點與按讚人數(log)之間的關係，另外我也將兩個比較特殊的時間點在圖上標記出來*(年-月-日)*，以供參考。  
   
@@ -228,7 +231,7 @@ scale_x_datetime(labels = date_format("%Y-%m-%d"))
   
 
 首先先將目標縮小到2014年的文章們，另外，手上有的指標只剩下文章內文與註記，在完全沒有頭緒的狀況下我們總是希望用簡單的指標就能找到原因，以下我將試著看看是否這些文章在#內文字數長度#上與其他文章有不同的狀況。  
-**也許因為文章字數不滿三行因此不受到大家重視?**
+**(也許因為文章字數不滿三行因此不受到大家重視?)**
 
 ```r
 ##把按讚數較低的幾則po文拉出來看
@@ -255,10 +258,12 @@ labs(x="日期",y="文章字數")
 ![圖八](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/nchar_date_xyplot.png)
 
   
-雖然按讚數較低的文章們在字數上真的都比較少，然而沒辦法純粹使用文章字數就可以做區辨(或是預測)，肯定仍然有甚麼特殊之處。  
-然而除非我們進行文字探勘，否則大致上已經沒有更多資訊可以讓我們做判斷了。  
+雖然按讚數較低的文章們在字數上真的都比較少，然而沒辦法純粹使用文章字數就可以做區辨(或是預測)，肯定仍然有甚麼特殊之處。然而除非我們進行文字探勘，否則大致上已經沒有更多資訊可以讓我們做判斷了。  
   
 因此，我們只能用目前最高端的智能工具，也就是我們自己，來處理這件事情。  
+
+----------
+
 後續直接觀察了文章內文，結果發現的確都有相同之處，這些文章都是創建相簿的動態，而創建相簿的訊息將標記在註記中。  
   
 下圖將創建相簿的文章以較深的顏色標記。  
@@ -287,7 +292,8 @@ scale_alpha_discrete(range=c(0.3,1))+guides(alpha=FALSE)
 ```
 
 ![圖九](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_type_trend3.png)
-  
+*請放大服用*  
+
 >後續發現是Rfacebook套件抓取資料時，在"創造相簿"的文章中會抓到第一張相片而非文章的按讚資料  
 *相關說明參照ptt R_language版 https://www.ptt.cc/bbs/R_Language/M.1497333230.A.A9A.html*  
 
