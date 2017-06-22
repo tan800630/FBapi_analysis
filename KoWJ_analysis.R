@@ -163,7 +163,7 @@ labs(x="日期",y="文章字數")+scale_color_discrete(name="文章讚數",labels=c("高","
 
 
 ####後續發現是Rfacebook抓取資料時，"創造相簿"的Po文資料抓取會抓到相片而非文章的按讚資料###
-##相關說明參照ptt R_language版
+##相關描述參照ptt R_language版
 ##https://www.ptt.cc/bbs/R_Language/M.1497333230.A.A9A.html
 
 #從story中找到有 "add __ photo to album: ___" 描述的文章
