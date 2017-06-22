@@ -84,15 +84,17 @@ grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)
 
 
 ##ggplot-文章類型/讚數-時間趨勢
-ggplot(dat,aes(x=created_time,y=log(likes_count)))+
-geom_point(aes(color=type,shape=type))+
-geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",linetype="dashed")+
-geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+
-annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+
-annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+
-labs(title="文章類型-讚數-時間趨勢",x="時間",y="讚數(log)")+
-facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
-scale_x_datetime(labels = date_format("%Y-%m-%d"))
+ggplot(dat,aes(x=created_time,y=log(likes_count)))+   
+geom_point(aes(color=type,shape=type))+   
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-01-19"))),colour="red",linetype="dashed")+   
+geom_vline(aes(xintercept=as.numeric(as.POSIXct("2014-11-29"))),colour="blue",linetype="dashed")+   
+annotate("text",x=as.POSIXct("2014-01-19"),y=4,label="宣布參選",colour="red")+   
+annotate("text",x=as.POSIXct("2014-11-29"),y=4,label="當選市長",colour="blue")+   
+labs(title="文章類型-讚數-時間趨勢",x="時間",y="讚數(log)")+   
+facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+   
+scale_x_datetime(labels = date_format("%Y-%m-%d"))   
+
+
 
 ##ggplot-文章類型/回應數-時間趨勢
 ####與按讚差異不大###
@@ -122,8 +124,17 @@ scale_x_datetime(labels = date_format("%Y-%m-%d"))
 
 
 ####
+ggplot(dat %>% filter(type=="photo"),aes(x=created_time,y=log(likes_count)))+
+geom_point(color="darkgreen")+
+geom_hline(aes(yintercept=7))+
+labs(title="Photo-讚數-時間趨勢",x="時間",y="讚數log")+
+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
+scale_x_datetime(labels = date_format("%Y-%m-%d"))
+
+
 ##把按讚數較低的幾則po文拉出來看
-datl=dat %>% filter(log(likes_count)<6.7,type=="photo") %>%
+
+datl=dat %>% filter(log(likes_count)<7,type=="photo") %>%
 select(X,message,created_time,type) %>% arrange(as.Date(created_time))
 
 ##把其中在2014年的文章(since 1/28 to 7/5)拉出來看，頭尾各增加30篇文章
@@ -133,17 +144,17 @@ dat_2014=dat %>% filter(X<datl$X[1]+30 & X>datl$X[25]-30,type=="photo")
 
 #作圖-按讚數與文章日期
 ggplot(dat_2014,aes(y=log(likes_count),x=as.Date(created_time)))+geom_point()+
-geom_hline(aes(yintercept=6.7),colour="red",linetype="dashed")+
+geom_hline(aes(yintercept=7),colour="red",linetype="dashed")+
 labs(x="日期",y="按讚數(log)")
 
 #作圖-按讚數與文章字數
 ggplot(dat_2014,aes(y=log(likes_count),x=nchar(message)))+geom_point()+
-geom_hline(aes(yintercept=6.7),colour="red",linetype="dashed")+
+geom_hline(aes(yintercept=7),colour="red",linetype="dashed")+
 labs(x="文章字數",y="按讚數(log)")
 
 #作圖-文章字數與日期,以紅色標記按讚數低的點
 ggplot(dat_2014,aes(y=nchar(message),x=as.Date(created_time)))+
-geom_point(aes(color=log(likes_count)>6.7))+theme(legend.position=c(.3,.85))+
+geom_point(aes(color=log(likes_count)>7))+theme(legend.position=c(.3,.85))+
 labs(x="日期",y="文章字數")
 
 #雖按讚數較低的文章文章字數皆較少，但仍無法用簡單的方式作區隔
