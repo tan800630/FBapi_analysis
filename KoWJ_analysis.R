@@ -154,8 +154,8 @@ labs(x="文章字數",y="按讚數(log)")
 
 #作圖-文章字數與日期,以紅色標記按讚數低的點
 ggplot(dat_2014,aes(y=nchar(message),x=as.Date(created_time)))+
-geom_point(aes(color=log(likes_count)>7))+theme(legend.position=c(.3,.85))+
-labs(x="日期",y="文章字數")
+geom_point(aes(color=log(likes_count)>7))+theme(legend.position=c(.1,.85))+
+labs(x="日期",y="文章字數")+scale_color_discrete(name="文章讚數",labels=c("高","低"))
 
 #雖按讚數較低的文章文章字數皆較少，但仍無法用簡單的方式作區隔
 

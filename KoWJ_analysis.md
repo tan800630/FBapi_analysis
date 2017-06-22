@@ -10,8 +10,9 @@
 2. **Required R packages**：
 *Rfacebook, dplyr, lubridate, ggplot2, scales, gridExtra*
 
-ex.若在擷取資料上有遇到困難無法處理或暫時不考慮申請FBAPI帳號的，可e-mail聯絡我，我會提供手邊的資料檔案(後續也將找時間上傳到開放空間)
+ex.若在擷取資料上有遇到困難無法處理或暫時不考慮申請FBAPI帳號的，可直接點選下面連結到data資料夾中下載檔案  
 
+[資料夾連結點我](https://github.com/tan800630/FBapi_analysis/blob/master/data)
 
 -------------------------------------------------
 -------------------------------------------------
@@ -101,15 +102,15 @@ hist(dat$comments_count,main="回應人數分配",xlab="回應人數")
 hist(dat$shares_count,main="分享人數分配",xlab="分享人數")  
 ```
 
-![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/hist_distribution.png)
-**圖一**  
+![圖一](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/hist_distribution.png)
+
 
 看起來不是非常開心，若後續想要對這些變項作圖的話多數狀況下會因為極端值拉大座標軸的最大值而不好做判斷   
   
 取log轉換後的資料分配如下圖，可愛多了   
 
-![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/hist_dist_log.png)
-**圖二**  
+![圖二](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/hist_dist_log.png)
+ 
 
 後續的資料呈現由於不希望數值都擠在一起，因此將採用log轉換數值，並在座標軸上特別做出標記，請各位特別注意。   
 整理完資料後，就可以來分析了。  
@@ -127,8 +128,8 @@ hist(dat$shares_count,main="分享人數分配",xlab="分享人數")
 #觀看此粉絲專頁的文章類型數量
 barplot(table(dat$type),main="柯文哲臉書粉絲專頁文章類型",xlab="文章類型",ylab="次數")
 ```
-![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/bar_plot.png)
-**圖三**  
+![圖三](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/bar_plot.png)
+
   
 從圖中我們可以發現**Photo**類型的文章最多，接著是**Video**、**Link**、**Status**、**Event**次數依序降低，符合了「發文不附圖，此風不可長」與「沒圖沒真相」的現代趨勢。    
 另外也看到Note類型的文章非常少，在資料中只有一則，後續將其從資料中刪除。  
@@ -158,8 +159,8 @@ theme(plot.title = element_text(hjust = 0.5),legend.position=c(.1,.85))
 grid.arrange(plot1,plot2,plot3,nrow=1,ncol=3)  
 ```
 
-![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_comment_share_xyplot.png)
-**圖四**  
+![圖四](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_comment_share_xyplot.png)
+
   
 上圖呈現按讚-回應-分享人數(log)兩兩配對的x-y plot，另外也以不同顏色和形狀表示不同的文章類型，可以看到按讚與回應的人數有非常高的線性正相關，另外分享與其他兩個指標也有正向的關聯，然而三張圖左下角都有一小群的離群值，在此先留意一下。  
 
@@ -191,8 +192,8 @@ facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
 scale_x_datetime(labels = date_format("%Y-%m-%d"))   
 ```
 
-
-**ggplot_like_type_trend**  
+![圖五](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_type_trend.png)
+  
 
 上圖將不同類型的文章分成不同的圖，並且畫出2013年到今年5月份每一篇文的發文時間點與按讚人數(log)之間的關係，另外我也將兩個比較特殊的時間點在圖上標記出來*(年-月-日)*，以供參考。  
   
@@ -219,9 +220,10 @@ theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
 scale_x_datetime(labels = date_format("%Y-%m-%d"))
 ```
 
-**ggplot_photo_trend**  
+![圖六](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_photo_trend.png)
 
-在2014上半年與2015下半年分別有兩群較明顯的低讚數文章(還記得圖四的離群值嗎)，這些文章特別的地方在哪裡(*是不是說了甚麼不該說的話*)，為什麼會那麼少人按讚呢？  
+
+在2014上半年與2015下半年分別有兩群較明顯的低讚數文章(還記得上面曾看到的離群值嗎)，這些文章特別的地方在哪裡(*是不是說了甚麼不該說的話*)，為什麼會那麼少人按讚呢？  
 以下我將花一點時間去探索這個問題。  
   
 
@@ -249,9 +251,9 @@ ggplot(dat_2014,aes(y=nchar(message),x=as.Date(created_time)))+
 geom_point(aes(color=log(likes_count)>7))+theme(legend.position=c(.3,.85))+
 labs(x="日期",y="文章字數")
 ```
+![圖七](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/nchar_like_xyplot.png)
+![圖八](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/nchar_date_xyplot.png)
 
-**nchar_like_xyplot**
-**nchar_date_xyplot**
   
 雖然按讚數較低的文章們在字數上真的都比較少，然而沒辦法純粹使用文章字數就可以做區辨(或是預測)，肯定仍然有甚麼特殊之處。  
 然而除非我們進行文字探勘，否則大致上已經沒有更多資訊可以讓我們做判斷了。  
@@ -284,7 +286,7 @@ scale_x_datetime(labels = date_format("%Y-%m-%d"))+
 scale_alpha_discrete(range=c(0.3,1))+guides(alpha=FALSE)
 ```
 
-**type_like_trend3**  
+![圖九](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/ggplot_like_type_trend3.png)
   
 >後續發現是Rfacebook套件抓取資料時，在"創造相簿"的文章中會抓到第一張相片而非文章的按讚資料  
 *相關說明參照ptt R_language版 https://www.ptt.cc/bbs/R_Language/M.1497333230.A.A9A.html*  
