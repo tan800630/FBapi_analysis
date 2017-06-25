@@ -100,8 +100,7 @@ findAssocs(tdm,"大家",0.3)
 一起 
 0.34  
 
-到此為止最簡單的文本分析就結束了，
-接著可以使用文字雲的方式將最常出現的字詞以圖像呈現出來  
+到此為止最簡單的文本分析就結束了，接著可以使用文字雲的方式將最常出現的字詞以圖像呈現出來  
 ```r
 m1 <- as.matrix(tdm)
 v <- sort(rowSums(m1), decreasing = TRUE)
@@ -110,5 +109,15 @@ wordcloud(d$word,d$freq,max.words=200,min.freq=10,random.order=F,
     ordered.colors=F,colors=rainbow(length(row.names(m1))))
 ```
 
-###picture_wordclud
-由於本次的文章來源為單一粉絲專頁，可以發現多半的文章內容仍是與台北市相關公共議題的宣導為主，因此主要仍圍繞在**北市**、**市府**、**市民**中。另外**我們**、**一起**出現頻率也非常高，在凝聚向心力方面也是做得不錯的
+![](https://raw.githubusercontent.com/tan800630/FBapi_analysis/master/pic/text_mining_wordcloud.png)
+
+由於本次的文章來源為單一粉絲專頁，可以發現多半的文章內容仍是與台北市相關公共議題的宣導為主，因此主要仍圍繞在**北市**、**市府**、**市民**中。另外**我們**、**大家**、**一起**出現頻率也非常高，也有想要凝聚市民向心力的作用。  
+
+##2. 使用jiebaR與text2vec套件進行字詞分析
+
+文字探勘順序  
+
+```r
+require(jiebaR)
+require(text2vec)
+```
