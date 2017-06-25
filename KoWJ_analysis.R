@@ -183,4 +183,21 @@ facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+
 scale_x_datetime(labels = date_format("%Y-%m-%d"))+
 scale_alpha_discrete(range=c(0.1,1))+guides(alpha=FALSE)
 
+######################
 
+page2 <- getPage("tsaiingwen",token=fb.oauth,n=5000,
+since=start_date,until=end_date)
+
+
+#變更變項類型
+dat$message=as.character(dat$message)
+
+dat=dat %>% mutate(created_time = parse_date_time(
+	substring(created_time,1, 19), "ymd HMS"))
+
+##ggplot-文章類型/讚數-時間趨勢
+ggplot(dat,aes(x=created_time,y=log(likes_count)))+   
+geom_point(aes(color=type,shape=type))+   
+labs(title="文章類型-讚數-時間趨勢",x="時間",y="讚數(log)")+   
+facet_grid(type~.)+theme_bw()+theme(plot.title = element_text(hjust = 0.5))+   
+scale_x_datetime(labels = date_format("%Y-%m-%d"))   

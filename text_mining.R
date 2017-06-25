@@ -10,7 +10,7 @@ start_date <- "2013/01/01"
 end_date <- "2017/05/31"
 page.id <- "DoctorKoWJ"
 
-dir="F:"
+dir="C:/Users/tan/Documents"
 
 page <- getPage(page.id,token=fb.oauth,n=3000,since=start_date,until=end_date)
 
@@ -35,6 +35,8 @@ require(Rwordseg)
 
 #製作語料庫
 d.corpus=SimpleCorpus(VectorSource(dat$message),control=list(language = "CN"))
+
+insertWords(c("世大運","士林","內湖","大同","松山","萬華","大安","信義","南港","文山","中山","北投","柯P","捷運"))
 
 #只刪除標點符號
 d.corpus = d.corpus %>% tm_map(removePunctuation)
