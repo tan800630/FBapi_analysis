@@ -199,7 +199,7 @@ a.tcm=create_tcm(a.token,a.vectorizer)
 #2. 製作document-term co-occurrence matrix
 a.dtm=create_dtm(a.token,a.vectorizer)
 ```
-> #####str(a.tcm):字詞之間的共同出現關係
+> ##### str(a.tcm):字詞之間的共同出現關係
 >Formal class 'dgTMatrix' [package "Matrix"] with 6 slots
 >  ..@ i       : int [1:124282] 421 756 225 756 920 479 553 1011 1139 1168 ...
 >  ..@ j       : int [1:124282] 897 1721 2010 1590 1125 1139 1011 1139 1996 1306 ...
@@ -210,7 +210,7 @@ a.dtm=create_dtm(a.token,a.vectorizer)
 >  ..@ x       : num [1:124282] 0.333 1 0.2 0.2 0.583 ...
 >  ..@ factors : list()
 
-> #####str(a.dtm):字詞與文本之間的關聯(與第一部分最後的tdm相同)
+> ##### str(a.dtm):字詞與文本之間的關聯(與第一部分最後的tdm相同)
 >Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
 >  ..@ i       : int [1:57425] 1113 1116 1117 1113 1117 1123 946 973 979 901 ...
 >  ..@ p       : int [1:2062] 0 3 6 9 11 18 21 37 46 54 ...
