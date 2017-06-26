@@ -200,23 +200,14 @@ a.tcm=create_tcm(a.token,a.vectorizer)
 a.dtm=create_dtm(a.token,a.vectorizer)
 ```
 > ##### str(a.tcm):字詞之間的共同出現關係  
-> 
 >Formal class 'dgTMatrix' [package "Matrix"] with 6 slots  
->
 >  ..@ i       : int [1:124282] 421 756 225 756 920 479 553 1011 1139 1168 ...  
->  
 >  ..@ j       : int [1:124282] 897 1721 2010 1590 1125 1139 1011 1139 1996 1306 ...  
->  
 >  ..@ Dim     : int [1:2] 2061 2061  
->  
 >  ..@ Dimnames:List of 2  
->  
 >  .. ..$ : chr [1:2061] "蘇花公路" "超車" "主義" "監察員" ...  
->  
 >  .. ..$ : chr [1:2061] "蘇花公路" "超車" "主義" "監察員" ...  
->  
 >  ..@ x       : num [1:124282] 0.333 1 0.2 0.2 0.583 ...  
->  
 >  ..@ factors : list()
 
 > ##### str(a.dtm):字詞與文本之間的關聯(與第一部分最後的tdm相同)  
