@@ -188,10 +188,11 @@ Vocabulary:
 2060:     正在           32         27
 2061:     質詢           13          9
 ```
-```r
-#準備製作向量模型，移動窗口設置為五個詞組
-a.vectorizer=vocab_vectorizer(pruned_vocab,grow_dtm=T,skip_grams_window=5)
 
+ ### 準備製作向量模型
+```r
+#移動窗口設為五個詞組
+a.vectorizer=vocab_vectorizer(pruned_vocab,grow_dtm=T,skip_grams_window=5)
 
 #1. 製作term-corpus co-occurrence matrix
 a.tcm=create_tcm(a.token,a.vectorizer)
@@ -223,8 +224,8 @@ a.dtm=create_dtm(a.token,a.vectorizer)
 >  ..@ x       : num [1:57425] 1 3 10 1 9 2 2 5 5 9 ...  
 >  ..@ factors : list()  
 
+ ###以MDS方法將字詞向量(from a.dtm)投影在二維平面中
 ```r
-#以MDS方法將字詞向量(from a.dtm)投影在二維平面中
 word.mds=cmdscale(1-sim2(t(as.matrix(a.dtm)),method="cosine"))
 word.mds_df=as.data.frame(word.mds)
 row.names(word.mds_df)=row.names(word.mds)
@@ -239,6 +240,8 @@ label=row.names(word.mds_df),size=3)
 
 此次文字資料的清理上沒有非常細緻，因此圖片看起來並沒有非常的漂亮。然而仍看的到相關的字詞被放在附近的地方，例如**台大、醫院、醫師、醫療**。另外可以看到柯文哲似乎被斷詞成"柯文"，目前嘗試過即使在辭典裡加入"柯文哲"一詞仍然是相同的結果，若想要更精確的結果似乎需要再做微調。  
 
+ ### GloVe model
+ GloVe模型與上述由資料開始往後進行維度縮減的模型不同，使用的是非監督學習方式，希望能在給定的維度中產生一組字詞向量，使其跟"觀察到的資料"越相近越好，因此在以下的code會設定參數(維度數量以及迴圈次數)。
 ```r
 #3. 製作GloVe model
 fit=GlobalVectors$new(word_vectors_size=100,vocabulary=pruned_vocab,x_max=30)
@@ -284,3 +287,10 @@ get_analogy("台灣","市府","市民")
 [jiebaR中文分詞文檔](https://qinwenfeng.com/jiebaR/)
 [R語言中文分詞包jiebaR](http://blog.fens.me/r-word-jiebar/)
 [20170113手把手教你R語言分析實務](https://www.slideshare.net/tw_dsconf/r-70971199)  
+
+
+  
+若對文章有任何建議或回饋，非常大家以任何方式留言給我進行交流
+E-mail: tan800630@gmail.com
+  
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/tw/"><img alt="創用 CC 授權條款" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/3.0/tw/88x31.png" /></a><br />本著作由<a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/tan800630" property="cc:attributionName" rel="cc:attributionURL">Yueh-Lin Tsai</a>製作，以<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/tw/">創用CC 姓名標示-非商業性-相同方式分享 3.0 台灣 授權條款</a>釋出。
