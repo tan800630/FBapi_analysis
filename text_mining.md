@@ -35,9 +35,9 @@ dat$message=as.character(dat$message)
 ```
 注意!! 在此只把沒有留言的文章刪掉，未做其他的處理(ex.刪掉note類型的文章)
 
-##1. 使用tmcn & Rwordseg套件進行字詞分析  
+## 1. 使用tmcn & Rwordseg套件進行字詞分析  
 
-####主要分析流程參考國立高雄大學資管所 陳嘉葳 之文章[連結](http://rstudio-pubs-static.s3.amazonaws.com/12422_b2b48bb2da7942acaca5ace45bd8c60c.html)
+#### 主要分析流程參考國立高雄大學資管所 陳嘉葳 之文章[連結](http://rstudio-pubs-static.s3.amazonaws.com/12422_b2b48bb2da7942acaca5ace45bd8c60c.html)
 事先安裝rJava,tmcn,以及Rwordseg之方法可參考[此篇](http://jianl.org/cn/R/Rwordseg.html)
   
 文字探勘的流程包含了資料前處理、斷詞、後續模型建立。前處理的過程主要依照語言的特性而有所不同，最基本的如去除標點符號、清除無參考意義的停止詞。接著即是中文會遇到的斷詞問題(英文則以space作為詞跟詞之間的分隔即可)，目前的做法大多是以事先建立好的詞庫做判斷依據，在此以Rwordseg套件執行，並在必要時自行增加詞庫。最後，在此使用的模型為向量空間模型(vector-space model)，以字詞在文本的出現頻率做為字詞自身的向量(未考慮權重的狀況下，例如總共有10個文章，"分析"一詞在第1,5,7篇文章各出現一次，則"分析"一詞的向量即為1,0,0,0,1,0,1,0,0,0)，後續可以向量差異比較字詞概念之間的關聯性(也可以反過來去判斷文本之間的關聯)，算是文本分析中較基本簡單的模型。
@@ -114,7 +114,7 @@ wordcloud(d$word,d$freq,max.words=200,min.freq=10,random.order=F,
 
 由於本次的文章來源為單一粉絲專頁，可以發現多半的文章內容仍是與台北市相關公共議題的宣導為主，因此主要仍圍繞在**北市**、**市府**、**市民**中。另外，台北、臺北、台北市、臺北市四個詞指的都是非常類似的概念(可能在使用的情境上略有不同)，然而本次分析中未將這四個詞統一化，因此這四個詞仍被分開計算詞頻。
 
-##2. 使用jiebaR與text2vec套件進行字詞分析
+## 2. 使用jiebaR與text2vec套件進行字詞分析
 使用此兩套件進行分析的順序則相反，先進行jiebaR斷詞(會自動去除標點符號)，再依照條件清除字詞。另外，在此除了最簡單的term-document matrix之外，也會額外設定移動窗格建立字詞之間的關聯矩陣，以及建立GloVe模型。
 
 順序  
@@ -269,16 +269,16 @@ get_analogy=function(king,man,woman){
 get_analogy("台灣","市府","市民")
 ```
 
-##其他相關資源##
+## 其他相關資源
 
 [R軟體與FB api-Text mining 北醫生統研究中心 江奕副統計分析師](http://biostat.tmu.edu.tw/enews/ep_download/15rb.pdf)  
 [GloVe model 另一種word embedding方法](http://www.pengfoo.com/machine-learning/2017-04-11)
 
-#####tmcn/Rwordseg 套件#####
+##### tmcn/Rwordseg 套件
 [R語言推廣_中文文字探勘 0419 陳嘉葳](https://docs.google.com/presentation/d/1IP5vFmBlGPBp32bWDqSpGYLox5QVmenFAfPwcOseQhQ/edit#slide=id.g271c06b53_0109)
 [Mr. Opengate-中文文本探勘初探:TF-IDF in R](http://mropengate.blogspot.tw/2016/04/tf-idf-in-r-language.html)  
 
-#####jiebaR/text2vec 套件#####
+##### jiebaR/text2vec 套件
 [jiebaR中文分詞文檔](https://qinwenfeng.com/jiebaR/)
 [R語言中文分詞包jiebaR](http://blog.fens.me/r-word-jiebar/)
 [20170113手把手教你R語言分析實務](https://www.slideshare.net/tw_dsconf/r-70971199)  
