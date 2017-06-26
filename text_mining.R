@@ -1,7 +1,7 @@
-require(data.table)
+
 require(dplyr)
 require(Rfacebook)
-require(gridExtra)
+require(ggplot2)
 
 #使用token的人要記得改一下"token=fb.oauth"這段
 #token="#your facebook API token#"
@@ -239,7 +239,7 @@ require(jiebaR)
 require(text2vec)
 
 
-text_min=worker()
+text_min=worker(user="C:/Users/user/Documents/R/win-library/3.4/jiebaRD/dict/jieba_dictn.utf8")
 
 #jiebaR斷詞
 a=sapply(dat$message,function(x) segment(x,text_min))
@@ -253,7 +253,7 @@ a.vocab.ns=a.vocab
 a.vocab.ns$vocab=a.vocab$vocab[-which(nchar(a.vocab$vocab$terms)==1),]
 
 #刪除出現數量過少的字詞
-pruned_vocab=prune_vocabulary(a.vocab.ns,term_count_min=10,
+pruned_vocab=prune_vocabulary(a.vocab.ns,term_count_min=50,
 doc_proportion_max =0.5,doc_proportion_min=0.001)
 
 a.vectorizer=vocab_vectorizer(pruned_vocab,grow_dtm=T,skip_grams_window=5)
@@ -272,14 +272,20 @@ fit$fit(a.tcm,n_iter=15)
 word.vec=fit$get_word_vectors()
 rownames(word.vec)=rownames(a.tcm)
 
+
 Encoding(rownames(word.vec))="UTF-8"
 
 #View(word.vec)
 
 #對字詞作MDS
 word.mds=cmdscale(1-sim2(t(as.matrix(a.dtm)),method="cosine"))
-plot(word.mds,type="n")
-text(word.mds,labels=rownames(word.vec))
+word.mds_df=as.data.frame(word.mds)
+row.names(word.mds_df)=row.names(word.mds)
+
+ggplot(word.mds_df,aes(x=V1,y=V2))+
+labs(x="Dimension 1",y="Dimension 2")+
+annotate("text",x=word.mds_df$V1,y=word.mds_df$V2,
+label=row.names(word.mds_df),size=3) 
 
 
 
