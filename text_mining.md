@@ -199,7 +199,7 @@ a.tcm=create_tcm(a.token,a.vectorizer)
 #2. 製作document-term co-occurrence matrix
 a.dtm=create_dtm(a.token,a.vectorizer)
 ```
-```
+
 >str(a.tcm):字詞之間的共同出現關係  
 >Formal class 'dgTMatrix' [package "Matrix"] with 6 slots  
 >  ..@ i       : int [1:124282] 421 756 225 756 920 479 553 1011 1139 1168 ...  
