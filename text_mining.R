@@ -238,7 +238,6 @@ Sys.setlocale(category = "LC_ALL", locale = "cht")
 require(jiebaR)
 require(text2vec)
 
-
 text_min=worker(user="C:/Users/user/Documents/R/win-library/3.4/jiebaRD/dict/jieba_dictn.utf8")
 
 #jiebaRÂ_µü
@@ -303,3 +302,12 @@ get_analogy=function(king,man,woman){
 	head(sort(cos.dist[1,],decreasing=T),10)
 }
 
+
+#### ÁÊª«Äx¤ÀªR###
+require(arules)
+
+basket_dat=as(t(as.matrix(tdm)),"transactions")
+
+dat_rule=apriori(basket_dat,parameter=list(support=0.1,confidence=0.5))
+
+arules::inspect(dat_rule)

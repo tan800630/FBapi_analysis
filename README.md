@@ -5,8 +5,8 @@
 FB_getpage
 > 抓取特定粉資專頁資料並存檔
 
-FB_textmining
-> 針對每則Po文的內容進行文字探勘並畫出文字雲
+[FB_textmining](https://github.com/tan800630/FBapi_analysis/blob/master/text_mining.md)
+> 針對文章內容進行文字探勘，並畫出文字雲
 
 [KoWJ_analysis](https://github.com/tan800630/FBapi_analysis/blob/master/KoWJ_analysis.md)
 > 對柯文哲粉絲專頁進行分析-只使用getpage資料
