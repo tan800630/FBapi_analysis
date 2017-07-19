@@ -123,9 +123,9 @@ wordcloud(d$word,d$freq,max.words=200,min.freq=10,random.order=F,
  - 製作目前的詞組字典
  - 字詞清除(出現頻率過低、單字詞等)
  - 製作模型
- 	1.字詞關聯矩陣(term-corpus matrix)
- 	2.文本字詞矩陣(documemnt-term matrix)
- 	3.GloVe 模型
+ 	1.字詞關聯矩陣(term-corpus matrix)  
+ 	2.文本字詞矩陣(documemnt-term matrix)  
+ 	3.GloVe 模型  
 
 ```r
 #設定環境為中文
@@ -288,7 +288,7 @@ get_analogy("台灣","市府","市民")
 [R語言中文分詞包jiebaR](http://blog.fens.me/r-word-jiebar/)
 [20170113手把手教你R語言分析實務](https://www.slideshare.net/tw_dsconf/r-70971199)  
 
-
+##  
   
 若對文章有任何建議或回饋，非常大家以任何方式留言給我進行交流
 E-mail: tan800630@gmail.com

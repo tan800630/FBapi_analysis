@@ -10,7 +10,7 @@ start_date <- "2013/01/01"
 end_date <- "2017/05/31"
 page.id <- "DoctorKoWJ"
 
-dir="C:/Users/tan/Documents"
+dir="F:"
 
 page <- getPage(page.id,token=fb.oauth,n=3000,since=start_date,until=end_date)
 
@@ -54,7 +54,9 @@ d.corpus=tm_map(d.corpus, segmentCN, nature = TRUE)
 #使用lapply處理
 d.corpus = lapply(d.corpus,function(x) removeWords(x,words=stopwordsCN()))
 d.corpus = Corpus(VectorSource(d.corpus))
-
+d.corpus <- tm_map(d.corpus, function(word) {
+    gsub("[A-Za-z0-9]", "", word)
+})
 
 #製作term-document matrix時會出現問題，需要用以下的code
 #參考網址：
@@ -214,21 +216,71 @@ TermDocumentMatrixCN<-
 #可將上面的程式碼存成一個r檔，需要時在source即可
 #source("TermDocumentMatrixCN.r")
 
-#製作Term-Document matrix
-tdm=TermDocumentMatrixCN(d.corpus,control=list(wordLengths = c(2,Inf)))
+#製作Term-Document matrix 紀錄TFIDF
+tdmTFIDF=TermDocumentMatrixCN(d.corpus,control=list(wordLengths = c(2,Inf),
+weighting=function(x) weightTfIdf(x,normalize=FALSE)))
+
+#製作Term-Document matrix 紀錄出現次數
+tdmTF=TermDocumentMatrixCN(d.corpus,control=list(wordLengths = c(2,Inf)))
+
+tdm <- tdmTF
+row.names(tdm) <- lapply(row.names(tdm),function(x){x<-gsub('\n','',x)})
+
+#挑出頻率較高的字並呈現出來，這邊設定是 100 以上。
+tmp <- findFreqTerms(tdm, 100, Inf)
+tmp
+
+#write.table(tmp,'HighFreqTF.txt',col.names=F,row.names=F)
+#HighFreqTerm <- readLines('HighFreqTF.txt')
+#tmp <- HighFreqTerm
+
 
 #文字雲
 require(wordcloud)
 
+#1
 m1 <- as.matrix(tdm)
 v <- sort(rowSums(m1), decreasing = TRUE)
 d <- data.frame(word = names(v), freq = v)
 wordcloud(d$word,d$freq,max.words=200,min.freq=10,random.order=F,
     ordered.colors=F,colors=rainbow(length(row.names(m1))))
+#2
+dtatmp <- tdm[tmp,]
+m1 <- as.matrix(dtatmp)
+v <- sort(rowSums(m1), decreasing = TRUE)
+d <- data.frame(word = names(v), freq = v)
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.5, "柯文哲",cex=3)
+wordcloud(d$word, d$freq, min.freq = 1,max.words=100, scale=c(5,.5),
+    random.order = F, rot.per=.15,ordered.colors = F, 
+    colors = pal2 <- brewer.pal(7,"Dark2"))
+
+
+#主題模型
+require(topicmodels)
+
+tdm_new=TermDocumentMatrixCN(d.corpus,control=list(wordLengths = c(2,10),
+weighting = function(x)weightTf(x)))
+dtm=t(tdm_new)
+
+#移除空的文件
+rowTotals <- apply(dtm , 1, sum)
+dtm.new   <- dtm[rowTotals> 0, ]  
+
+#設定抽取主題數，要多試試看
+ctm <- CTM(dtm.new, k = 5)
+
+##看看每個主題包含哪些字
+terms(ctm, 20, 0.001)
+
+##看看每篇文章包含哪些主題
+topics(ctm,4, .01)
 
 
 #字詞關聯
-findAssocs(tdm,"大家",0.3)
+findAssocs(tdm,"政府",0.3)
 
 
 #########2.使用jiebaR & text2vec套件進行字詞分析#########
@@ -237,6 +289,7 @@ Sys.setlocale(category = "LC_ALL", locale = "cht")
 
 require(jiebaR)
 require(text2vec)
+
 
 text_min=worker(user="C:/Users/user/Documents/R/win-library/3.4/jiebaRD/dict/jieba_dictn.utf8")
 
@@ -301,7 +354,6 @@ get_analogy=function(king,man,woman){
 	#please show the top-10 words for this analogy task
 	head(sort(cos.dist[1,],decreasing=T),10)
 }
-
 
 #### 購物籃分析###
 require(arules)
